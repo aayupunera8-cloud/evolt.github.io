@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>E-Volt+ — Indian Electric Vehicle Database</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1420;
+    --bg-alt: #0B0F18;
+    --surface: #172232;
+    --surface-hover: #1D2B3D;
+    --border: #263547;
+    --text: #EDEFF2;
+    --muted: #7C8798;
+    --amber: #FFB400;
+    --teal: #4FD1C5;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #0E1420; --bg-alt: #0B0F18; --surface: #172232;
+      --surface-hover: #1D2B3D; --border: #263547; --text: #EDEFF2; --muted: #7C8798;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .display {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---- Header ---- */
+  header.site {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+  }
+  .credit-tag {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 40;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding: 6px 14px;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
+  }
+  .credit-tag span { color: var(--amber); font-weight: 600; }
+  @media (max-width: 560px) {
+    .credit-tag { top: auto; bottom: 16px; right: 16px; }
+  }
+  header.site .wrap { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 700; }
+  .logo .bolt { color: var(--amber); font-size: 1.3rem; }
+  nav.site-nav { display: flex; gap: 28px; font-size: 0.92rem; color: var(--muted); }
+  nav.site-nav a { text-decoration: none; }
+  nav.site-nav a:hover { color: var(--text); }
+
+  /* ---- Hero ---- */
+  .hero {
+    padding: 72px 0 56px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .hero h1 {
+    font-size: clamp(2.1rem, 4vw, 3rem);
+    line-height: 1.08;
+    margin-bottom: 18px;
+    max-width: 15ch;
+  }
+  .hero p.lead {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 46ch;
+    margin-bottom: 32px;
+  }
+  .search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .search-box input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+  .search-box input::placeholder { color: var(--muted); }
+  .search-box button {
+    background: var(--amber);
+    color: #1a1204;
+    border: none;
+    padding: 0 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .search-box button:hover { filter: brightness(1.08); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .15s, color .15s;
+  }
+  .chip:hover { color: var(--text); border-color: var(--muted); }
+  .chip.active {
+    color: var(--bg);
+    background: var(--teal);
+    border-color: var(--teal);
+    font-weight: 600;
+  }
+
+  /* Hero example card */
+  .hero-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 26px;
+  }
+  .hero-card .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--teal);
+    border: 1px solid var(--teal);
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .hero-card h3 { font-size: 1.3rem; margin-bottom: 2px; }
+  .hero-card .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 18px; }
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
+  .stat { }
+  .stat .num { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--amber); }
+  .stat .label { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---- Results ---- */
+  main.results { padding: 8px 0 80px; }
+  .results-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+  }
+  .results-head h2 { font-size: 1.1rem; font-weight: 600; }
+  .results-head .count { color: var(--muted); font-size: 0.88rem; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    cursor: pointer;
+    transition: border-color .15s, transform .12s;
+    position: relative;
+  }
+  .upcoming-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 180, 0, 0.14);
+    color: var(--amber);
+    border: 1px solid var(--amber);
+    font-size: 0.7rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .card:hover { border-color: var(--teal); transform: translateY(-2px); }
+  .card .brand { color: var(--muted); font-size: 0.82rem; }
+  .brand-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; gap: 8px; }
+  .variant-count { color: var(--teal); font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+  .card h3 { font-size: 1.12rem; margin-bottom: 14px; }
+  .card .mini-stats { display: flex; gap: 18px; flex-wrap: wrap; }
+  .card .mini-stats div { font-size: 0.85rem; }
+  .card .mini-stats .n { font-weight: 700; color: var(--text); font-family: 'Space Grotesk', sans-serif; }
+  .card .mini-stats .l { color: var(--muted); font-size: 0.72rem; }
+  .card .price { margin-top: 14px; color: var(--amber); font-weight: 600; font-size: 0.95rem; }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  /* ---- Modal ---- */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(5,8,13,0.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 86vh;
+    overflow-y: auto;
+    padding: 32px;
+  }
+  .modal-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .modal-head .brand { color: var(--muted); font-size: 0.9rem; }
+  .modal-head h2 { font-size: 1.5rem; margin-top: 2px; }
+  .modal .close-btn {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .modal .body-type-tag {
+    display: inline-block; margin-top: 10px; margin-right: 8px;
+    font-size: 0.78rem; color: var(--teal); border: 1px solid var(--teal);
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .modal .upcoming-tag {
+    display: inline-block; margin-top: 10px;
+    font-size: 0.78rem; color: var(--amber); border: 1px solid var(--amber);
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px;
+    border-top: 1px solid var(--border); padding-top: 22px;
+  }
+  .detail-grid .d-label { color: var(--muted); font-size: 0.78rem; margin-bottom: 3px; }
+  .detail-grid .d-val { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 1.15rem; }
+
+  .variant-table { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .variant-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    font-size: 0.86rem;
+  }
+  .variant-row:last-child { border-bottom: none; }
+  .variant-row:nth-child(even) { background: rgba(255,255,255,0.02); }
+  .variant-name { font-weight: 600; }
+  .variant-specs { display: flex; gap: 16px; color: var(--muted); }
+  .variant-specs span:last-child { color: var(--amber); font-weight: 600; min-width: 80px; text-align: right; }
+  @media (max-width: 480px) {
+    .variant-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .variant-specs { gap: 12px; font-size: 0.8rem; }
+  }
+
+  footer.site {
+    border-top: 1px solid var(--border);
+    padding: 28px 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 820px) {
+    .hero { grid-template-columns: 1fr; padding-top: 40px; }
+    .hero-card { order: -1; }
+  }
+  @media (max-width: 480px) {
+    .search-box { flex-direction: column; }
+    .search-box button { padding: 12px; }
+  }
+
+  :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+  /* ================= INTRO SEQUENCE ================= */
+  #introOverlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, #131e2d 0%, #070a10 75%);
+    z-index: 999;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1s ease;
+  }
+  #introOverlay.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .grid-floor {
+    position: absolute;
+    left: -25%;
+    right: -25%;
+    bottom: 0;
+    height: 45%;
+    background-image:
+      linear-gradient(rgba(79, 209, 197, 0.22) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79, 209, 197, 0.22) 1px, transparent 1px);
+    background-size: 60px 60px;
+    transform: perspective(500px) rotateX(62deg);
+    transform-origin: bottom;
+    mask-image: linear-gradient(to top, black, transparent 90%);
+    -webkit-mask-image: linear-gradient(to top, black, transparent 90%);
+    animation: floorScroll 1.4s linear infinite;
+  }
+  @keyframes floorScroll {
+    from { background-position: 0 0, 0 0; }
+    to { background-position: 0 60px, 0 0; }
+  }
+  .tagline-wrap {
+    position: absolute;
+    top: 22%;
+    left: 0; right: 0;
+    text-align: center;
+    z-index: 2;
+  }
+  .tagline-wrap .eyebrow {
+    color: var(--amber);
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    margin-bottom: 10px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+    animation-delay: 0.2s;
+  }
+  #tagline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.4rem, 4.5vw, 2.6rem);
+    font-weight: 600;
+    color: var(--text);
+    min-height: 1.4em;
+    letter-spacing: 0.02em;
+  }
+  #tagline .cursor {
+    display: inline-block;
+    width: 3px;
+    height: 0.9em;
+    background: var(--teal);
+    margin-left: 4px;
+    vertical-align: -0.12em;
+    animation: blink 0.9s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .car-stage {
+    position: relative;
+    width: 440px;
+    max-width: 82vw;
+    height: 220px;
+    perspective: 900px;
+    transform: translateX(-160vw);
+  }
+  .car-stage.drive-in {
+    animation: driveIn 1.8s cubic-bezier(.2,.7,.25,1) forwards;
+  }
+  @keyframes driveIn {
+    0%   { transform: translateX(-160vw); }
+    75%  { transform: translateX(6%); }
+    100% { transform: translateX(0); }
+  }
+  .car-stage.zoom-in {
+    animation: zoomIn 1.3s cubic-bezier(.5,0,.3,1) forwards;
+  }
+  @keyframes zoomIn {
+    0%   { transform: translateX(0) scale(1); opacity: 1; }
+    100% { transform: translateX(0) scale(14); opacity: 0; }
+  }
+
+  .car-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .car-outline {
+    fill: none;
+    stroke: var(--teal);
+    stroke-width: 2.2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 6px rgba(79,209,197,0.65));
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+  }
+  .drive-in .car-outline { animation: drawCar 1.6s ease-out forwards; }
+  @keyframes drawCar {
+    to { stroke-dashoffset: 0; }
+  }
+  .wheel {
+    fill: #0B0F18;
+    stroke: var(--muted);
+    stroke-width: 2;
+  }
+  .headlight {
+    fill: var(--amber);
+    filter: drop-shadow(0 0 8px rgba(255,180,0,0.9));
+    opacity: 0;
+  }
+  .drive-in .headlight { animation: fadeUp 0.5s ease forwards; animation-delay: 1.2s; }
+
+  .door-panel {
+    position: absolute;
+    left: 46%;
+    top: 30%;
+    width: 26%;
+    height: 46%;
+    background: linear-gradient(160deg, #1c2a3c, #101825);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transform-style: preserve-3d;
+    transform-origin: left center;
+    transform: rotateY(0deg);
+    box-shadow: 0 0 0 rgba(0,0,0,0);
+  }
+  .door-panel.open {
+    transition: transform 1s cubic-bezier(.3,.9,.4,1);
+    transform: rotateY(-118deg);
+  }
+  .dash-glow {
+    position: absolute;
+    left: 46%;
+    top: 30%;
+    width: 26%;
+    height: 46%;
+    border-radius: 6px;
+    background: radial-gradient(circle at 50% 35%, rgba(79,209,197,0.85), rgba(79,209,197,0.08) 70%);
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .dash-glow.on { opacity: 1; }
+  .dash-glow::before {
+    content: '';
+    width: 62%;
+    height: 34%;
+    border: 1px solid rgba(237,239,242,0.5);
+    border-radius: 3px;
+    background:
+      linear-gradient(rgba(237,239,242,0.35) 1px, transparent 1px) 0 30%/100% 34%,
+      linear-gradient(rgba(237,239,242,0.35) 1px, transparent 1px) 0 65%/100% 34%;
+  }
+
+  .skip-btn {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    z-index: 5;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .skip-btn:hover { color: var(--text); border-color: var(--muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #introOverlay { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="introOverlay">
+  <button class="skip-btn" id="skipIntro">Skip intro ⏭</button>
+  <div class="grid-floor"></div>
+  <div class="tagline-wrap">
+    <div class="eyebrow">E-VOLT+</div>
+    <div id="tagline"><span id="taglineText"></span><span class="cursor"></span></div>
+  </div>
+  <div class="car-stage" id="carStage">
+    <svg class="car-svg" viewBox="0 0 440 220">
+      <path class="car-outline" d="M120,60 L300,60 L340,110 L400,120 L400,140 L40,140 L40,120 L80,100 Z" />
+      <circle class="car-outline" cx="110" cy="150" r="22" />
+      <circle class="car-outline" cx="330" cy="150" r="22" />
+      <circle class="headlight" cx="396" cy="126" r="6" />
+    </svg>
+    <div class="door-panel" id="doorPanel"></div>
+    <div class="dash-glow" id="dashGlow"></div>
+  </div>
+</div>
+
+<div class="credit-tag">by <span>AYUSH PUNERA</span></div>
+
+<header class="site">
+  <div class="wrap">
+    <div class="logo"><span class="bolt">⚡</span> E-Volt+</div>
+    <nav class="site-nav">
+      <a href="#results">Browse</a>
+      <a href="#" id="resetLink">All vehicles</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <h1>Every Indian EV, one search away.</h1>
+      <p class="lead">Cars, scooters and motorcycles — look up range, price, battery size and charging speed across EVs sold in India. No account, no waiting on an AI response — just the numbers.</p>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by brand, model, or type…" autocomplete="off" />
+        <button id="searchBtn">Search</button>
+      </div>
+      <div class="chips" id="filterChips"></div>
+      <div class="chips" id="statusChips" style="margin-top: 8px;"></div>
+    </div>
+    <div class="hero-card">
+      <span class="tag">Example lookup</span>
+      <h3>Ather 450X</h3>
+      <div class="sub">2024 · Scooter</div>
+      <div class="stat-row">
+        <div class="stat"><div class="num">150 km</div><div class="label">Range</div></div>
+        <div class="stat"><div class="num">3.7 kWh</div><div class="label">Battery</div></div>
+        <div class="stat"><div class="num">4.9 hr</div><div class="label">0–80% charge</div></div>
+        <div class="stat"><div class="num">₹1.5L</div><div class="label">Starting price</div></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="results" id="results">
+    <div class="results-head">
+      <h2 id="resultsTitle">All vehicles</h2>
+      <span class="count" id="resultsCount"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="emptyState" style="display:none;">No vehicles match that search. Try a different brand or body type.</div>
+  </main>
+</div>
+
+<footer class="site">
+  <div class="wrap">E-Volt+ — a static, offline EV specification lookup covering cars, scooters and motorcycles sold or launching in India, including local brands like Tata, Mahindra, Ather, Ola Electric, TVS, Bajaj, Revolt, Matter and more. Prices are ex-showroom and vary slightly by state. Figures for upcoming/unlaunched vehicles are estimates from public reports and may change before official launch.</div>
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+  const database = [
+    // ---- Cars: Available ----
+    { type: "Car", brand: "Tata", model: "Nexon EV", year: 2025, sub: "SUV", range: 489, battery: 45, price: 1249000, topSpeed: 150, charge: 56, chargeUnit: "min", status: "Available", variants: [
+      { trim: "Fearless (MR)", battery: 30, range: 325, price: 1229000 },
+      { trim: "Creative+ (MR)", battery: 30, range: 325, price: 1249000 },
+      { trim: "Fearless+ (MR)", battery: 30, range: 325, price: 1379000 },
+      { trim: "Fearless+ S (MR)", battery: 30, range: 325, price: 1429000 },
+      { trim: "Empowered (MR)", battery: 30, range: 325, price: 1479000 },
+      { trim: "Creative (LR)", battery: 45, range: 489, price: 1399000 },
+      { trim: "Fearless (LR)", battery: 45, range: 489, price: 1499000 },
+      { trim: "Empowered (LR)", battery: 45, range: 489, price: 1599000 },
+      { trim: "Empowered+ (LR)", battery: 45, range: 489, price: 1699000 },
+      { trim: "Empowered+ Red Dark (LR)", battery: 45, range: 489, price: 1719000 }
+    ] },
+    { type: "Car", brand: "Tata", model: "Tiago EV", year: 2025, sub: "Hatchback", range: 315, battery: 24, price: 799000, topSpeed: 120, charge: 58, chargeUnit: "min", status: "Available", variants: [
+      { trim: "XE (MR)", battery: 19.2, range: 250, price: 799000 },
+      { trim: "XT (MR)", battery: 19.2, range: 250, price: 899000 },
+      { trim: "XT (LR)", battery: 24, range: 315, price: 1014000 },
+      { trim: "XZ+ Tech Lux (LR)", battery: 24, range: 315, price: 1114000 }
+    ] },
+    { type: "Car", brand: "Tata", model: "Punch EV", year: 2026, sub: "SUV", range: 468, battery: 40, price: 979000, topSpeed: 150, charge: 56, chargeUnit: "min", status: "Available", variants: [
+      { trim: "Smart (30 kWh)", battery: 30, range: 355, price: 979000 },
+      { trim: "Smart+ (30 kWh)", battery: 30, range: 355, price: null },
+      { trim: "Smart+ (40 kWh)", battery: 40, range: 468, price: null },
+      { trim: "Adventure (40 kWh)", battery: 40, range: 468, price: null },
+      { trim: "Empowered (40 kWh)", battery: 40, range: 468, price: null },
+      { trim: "Empowered+ S (40 kWh)", battery: 40, range: 468, price: 1299000 }
+    ] },
+    { type: "Car", brand: "Tata", model: "Curvv EV", year: 2024, sub: "SUV Coupe", range: 502, battery: 55, price: 1749000, topSpeed: 165, charge: 40, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "Tata", model: "Harrier EV", year: 2025, sub: "SUV", range: 538, battery: 65, price: 2170000, topSpeed: 170, charge: 30, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "Mahindra", model: "XUV400", year: 2024, sub: "SUV", range: 456, battery: 39.4, price: 1599000, topSpeed: 150, charge: 50, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "Mahindra", model: "BE 6", year: 2026, sub: "SUV", range: 682, battery: 79, price: 1890000, topSpeed: 200, charge: 20, chargeUnit: "min", status: "Available", variants: [
+      { trim: "Pack One", battery: 59, range: 557, price: 1890000 },
+      { trim: "Pack One Above", battery: 59, range: 557, price: 2050000 },
+      { trim: "Pack Two", battery: 59, range: 557, price: 2190000 },
+      { trim: "Pack Two", battery: 79, range: 682, price: 2350000 },
+      { trim: "Pack Three Select", battery: 59, range: 557, price: 2450000 },
+      { trim: "Pack Three", battery: 79, range: 682, price: 2690000 }
+    ] },
+    { type: "Car", brand: "Mahindra", model: "XEV 9e", year: 2026, sub: "SUV", range: 656, battery: 79, price: 2190000, topSpeed: 200, charge: 20, chargeUnit: "min", status: "Available", variants: [
+      { trim: "Pack One", battery: 59, range: 542, price: 2190000 },
+      { trim: "Pack Two", battery: 59, range: 542, price: 2490000 },
+      { trim: "Pack Two", battery: 79, range: 656, price: 2650000 },
+      { trim: "Pack Three Select", battery: 59, range: 542, price: 2790000 },
+      { trim: "Pack Three", battery: 79, range: 656, price: 3050000 }
+    ] },
+    { type: "Car", brand: "MG", model: "ZS EV", year: 2024, sub: "SUV", range: 461, battery: 50.3, price: 1898000, topSpeed: 175, charge: 50, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "MG", model: "Comet EV", year: 2026, sub: "Hatchback", range: 230, battery: 17.3, price: 799000, topSpeed: 100, charge: 7, chargeUnit: "hr", status: "Available", variants: [
+      { trim: "Executive", battery: 17.3, range: 230, price: 799000 },
+      { trim: "Excite", battery: 17.3, range: 230, price: 911000 },
+      { trim: "Excite FC", battery: 17.3, range: 230, price: 953000 },
+      { trim: "Exclusive", battery: 17.3, range: 230, price: 1015000 },
+      { trim: "Exclusive FC", battery: 17.3, range: 230, price: 1057000 }
+    ] },
+    { type: "Car", brand: "MG", model: "Windsor EV", year: 2025, sub: "Crossover", range: 449, battery: 38, price: 1349000, topSpeed: 140, charge: 50, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "Citroen", model: "eC3", year: 2024, sub: "Hatchback", range: 320, battery: 29.2, price: 1199000, topSpeed: 107, charge: 11, chargeUnit: "hr", status: "Available" },
+    { type: "Car", brand: "Hyundai", model: "Kona Electric", year: 2024, sub: "SUV", range: 452, battery: 39.2, price: 2379000, topSpeed: 155, charge: 57, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "Hyundai", model: "Creta Electric", year: 2025, sub: "SUV", range: 473, battery: 51.4, price: 1799000, topSpeed: 170, charge: 58, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "Kia", model: "Syros EV", year: 2026, sub: "SUV", range: 480, battery: 51.4, price: 1650000, topSpeed: 150, charge: 50, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "Maruti Suzuki", model: "e Vitara", year: 2026, sub: "SUV", range: 500, battery: 61, price: 1619000, topSpeed: 150, charge: 45, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "BYD", model: "Atto 3", year: 2024, sub: "SUV", range: 521, battery: 60.5, price: 3399000, topSpeed: 160, charge: 50, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "BYD", model: "Seal", year: 2024, sub: "Sedan", range: 650, battery: 82.5, price: 4190000, topSpeed: 180, charge: 26, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "VinFast", model: "VF6", year: 2025, sub: "SUV", range: 480, battery: 59.6, price: 1999000, topSpeed: 160, charge: 35, chargeUnit: "min", status: "Available" },
+    { type: "Car", brand: "VinFast", model: "VF7", year: 2025, sub: "SUV", range: 450, battery: 70.8, price: 2599000, topSpeed: 180, charge: 35, chargeUnit: "min", status: "Available" },
+
+    // ---- Cars: Upcoming ----
+    { type: "Car", brand: "Tata", model: "Sierra EV", year: 2026, sub: "SUV", range: 460, battery: 65, price: 2000000, topSpeed: 170, charge: 40, chargeUnit: "min", status: "Upcoming", launchNote: "Expected late 2026" },
+    { type: "Car", brand: "Tata", model: "Safari EV", year: 2026, sub: "SUV (7-seater)", range: 500, battery: 70, price: 3200000, topSpeed: 170, charge: 40, chargeUnit: "min", status: "Upcoming", launchNote: "Expected around Diwali 2026" },
+    { type: "Car", brand: "Mahindra", model: "BE 07", year: 2026, sub: "SUV", range: 550, battery: 70, price: 2200000, topSpeed: 200, charge: 25, chargeUnit: "min", status: "Upcoming", launchNote: "Expected October 2026" },
+    { type: "Car", brand: "VinFast", model: "VF3", year: 2026, sub: "Mini SUV", range: 250, battery: 18, price: 1000000, topSpeed: 120, charge: 45, chargeUnit: "min", status: "Upcoming", launchNote: "Expected H2 2026" },
+    { type: "Car", brand: "Hyundai", model: "Inster", year: 2026, sub: "Hatchback", range: 355, battery: 45, price: 1200000, topSpeed: 140, charge: 30, chargeUnit: "min", status: "Upcoming", launchNote: "Expected around Diwali 2026" },
+    { type: "Car", brand: "Honda", model: "Elevate EV", year: 2026, sub: "SUV", range: 420, battery: 55, price: 1800000, topSpeed: 150, charge: 45, chargeUnit: "min", status: "Upcoming", launchNote: "Expected 2026" },
+
+    // ---- Scooters: Available ----
+    { type: "Scooter", brand: "Ather", model: "450X", year: 2026, sub: "Scooter", range: 161, battery: 3.7, price: 146000, topSpeed: 90, charge: 4.9, chargeUnit: "hr", status: "Available", variants: [
+      { trim: "450X (2.9 kWh)", battery: 2.9, range: 126, price: 146000 },
+      { trim: "450X Pro (3.7 kWh)", battery: 3.7, range: 161, price: 173000 }
+    ] },
+    { type: "Scooter", brand: "Ather", model: "Konarc", year: 2026, sub: "Scooter", range: 155, battery: 3.7, price: 102000, topSpeed: 90, charge: 4.5, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "Ola Electric", model: "S1 Pro", year: 2024, sub: "Scooter", range: 195, battery: 4, price: 147000, topSpeed: 120, charge: 6.5, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "Ola Electric", model: "S1 Air", year: 2024, sub: "Scooter", range: 125, battery: 3, price: 109999, topSpeed: 90, charge: 5, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "TVS", model: "iQube", year: 2026, sub: "Scooter", range: 212, battery: 5.3, price: 101000, topSpeed: 82, charge: 4.5, chargeUnit: "hr", status: "Available", variants: [
+      { trim: "iQube 2.2", battery: 2.2, range: 94, price: 101000 },
+      { trim: "iQube 3.1", battery: 3.1, range: 145, price: 110000 },
+      { trim: "iQube 3.5", battery: 3.5, range: 212, price: 123000 }
+    ] },
+    { type: "Scooter", brand: "Bajaj", model: "Chetak", year: 2026, sub: "Scooter", range: 153, battery: 3.5, price: 102000, topSpeed: 73, charge: 5, chargeUnit: "hr", status: "Available", variants: [
+      { trim: "Chetak (3.0 kWh)", battery: 3, range: 126, price: 102000 },
+      { trim: "Chetak 3501 (3.5 kWh)", battery: 3.5, range: 153, price: 134000 }
+    ] },
+    { type: "Scooter", brand: "Hero Vida", model: "V1 Pro", year: 2024, sub: "Scooter", range: 143, battery: 3.94, price: 129990, topSpeed: 80, charge: 5.5, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "Okinawa", model: "PraisePro", year: 2024, sub: "Scooter", range: 88, battery: 2.5, price: 99715, topSpeed: 58, charge: 4, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "Ampere", model: "Magnus EX", year: 2024, sub: "Scooter", range: 121, battery: 2.9, price: 119000, topSpeed: 55, charge: 5, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "River", model: "Indie", year: 2024, sub: "Scooter", range: 140, battery: 3.24, price: 129999, topSpeed: 90, charge: 4, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "Simple Energy", model: "One", year: 2024, sub: "Scooter", range: 212, battery: 4.8, price: 145000, topSpeed: 105, charge: 5, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "BGauss", model: "C12 MaxR", year: 2025, sub: "Scooter", range: 141, battery: 3, price: 140000, topSpeed: 75, charge: 4.5, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "PURE EV", model: "ETrance Plus", year: 2024, sub: "Scooter", range: 140, battery: 3.9, price: 120000, topSpeed: 65, charge: 4, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "Odysse", model: "Hawk Plus", year: 2024, sub: "Scooter", range: 110, battery: 3, price: 115000, topSpeed: 65, charge: 5, chargeUnit: "hr", status: "Available" },
+    { type: "Scooter", brand: "Bounce", model: "Infinity E1", year: 2024, sub: "Scooter", range: 85, battery: 2, price: 89990, topSpeed: 65, charge: 4, chargeUnit: "hr", status: "Available" },
+
+    // ---- Scooters: Upcoming ----
+    { type: "Scooter", brand: "Hero Electric", model: "AE-8", year: 2026, sub: "Scooter", range: 130, battery: 3, price: 70000, topSpeed: 70, charge: 4.5, chargeUnit: "hr", status: "Upcoming", launchNote: "Expected 2026" },
+    { type: "Scooter", brand: "Ultraviolette", model: "Tesseract", year: 2027, sub: "Scooter", range: 150, battery: 4, price: 150000, topSpeed: 100, charge: 3.5, chargeUnit: "hr", status: "Upcoming", launchNote: "Expected early 2027" },
+    { type: "Scooter", brand: "Kabira Mobility", model: "KM5000", year: 2026, sub: "Scooter", range: 160, battery: 4, price: 150000, topSpeed: 95, charge: 4, chargeUnit: "hr", status: "Upcoming", launchNote: "Expected 2026" },
+    { type: "Scooter", brand: "Simple Energy", model: "Family Scooter", year: 2026, sub: "Scooter", range: 150, battery: 3.5, price: 100000, topSpeed: 80, charge: 4, chargeUnit: "hr", status: "Upcoming", launchNote: "Expected 2026" },
+
+    // ---- Motorcycles: Available ----
+    { type: "Motorcycle", brand: "Revolt", model: "RV400", year: 2024, sub: "Motorcycle", range: 150, battery: 3.24, price: 149000, topSpeed: 85, charge: 4.5, chargeUnit: "hr", status: "Available" },
+    { type: "Motorcycle", brand: "Revolt", model: "RV1", year: 2024, sub: "Motorcycle", range: 80, battery: 2.2, price: 84990, topSpeed: 65, charge: 4, chargeUnit: "hr", status: "Available" },
+    { type: "Motorcycle", brand: "Ultraviolette", model: "F77", year: 2024, sub: "Motorcycle", range: 307, battery: 10.3, price: 379999, topSpeed: 152, charge: 1.5, chargeUnit: "hr", status: "Available" },
+    { type: "Motorcycle", brand: "Tork", model: "Kratos R", year: 2024, sub: "Motorcycle", range: 180, battery: 4.4, price: 175000, topSpeed: 105, charge: 4.5, chargeUnit: "hr", status: "Available" },
+    { type: "Motorcycle", brand: "Matter", model: "Aera", year: 2024, sub: "Motorcycle", range: 150, battery: 4, price: 174000, topSpeed: 105, charge: 4, chargeUnit: "hr", status: "Available" },
+
+    // ---- Motorcycles: Upcoming ----
+    { type: "Motorcycle", brand: "Royal Enfield", model: "Flying Flea S6", year: 2027, sub: "Motorcycle", range: 200, battery: 5, price: 340000, topSpeed: 120, charge: 3, chargeUnit: "hr", status: "Upcoming", launchNote: "Expected Jan 2027" },
+    { type: "Motorcycle", brand: "Royal Enfield", model: "Himalayan Electric", year: 2026, sub: "Motorcycle", range: 250, battery: 6, price: 750000, topSpeed: 130, charge: 3, chargeUnit: "hr", status: "Upcoming", launchNote: "Expected 2026" },
+    { type: "Motorcycle", brand: "TVS", model: "Electric Bike", year: 2026, sub: "Motorcycle", range: 200, battery: 5, price: 250000, topSpeed: 110, charge: 3.5, chargeUnit: "hr", status: "Upcoming", launchNote: "Expected December 2026" },
+    { type: "Motorcycle", brand: "KTM", model: "E-Duke", year: 2027, sub: "Motorcycle", range: 180, battery: 4.5, price: 200000, topSpeed: 120, charge: 3, chargeUnit: "hr", status: "Upcoming", launchNote: "Expected Feb 2027" }
+  ];
+
+  const grid = document.getElementById('grid');
+  const emptyState = document.getElementById('emptyState');
+  const resultsTitle = document.getElementById('resultsTitle');
+  const resultsCount = document.getElementById('resultsCount');
+  const searchInput = document.getElementById('searchInput');
+  const filterChips = document.getElementById('filterChips');
+  const statusChips = document.getElementById('statusChips');
+  const overlay = document.getElementById('overlay');
+  const modal = document.getElementById('modal');
+
+  const vehicleTypes = ["All", "Car", "Scooter", "Motorcycle"];
+  const statusOptions = ["All", "Available", "Upcoming"];
+  let activeFilter = "All";
+  let activeStatus = "All";
+
+  function formatPrice(price) {
+    if (price >= 100000) return `₹${(price / 100000).toFixed(2).replace(/\.00$/, '')}L`;
+    return `₹${price.toLocaleString('en-IN')}`;
+  }
+
+  function renderChips() {
+    filterChips.innerHTML = vehicleTypes.map(t =>
+      `<button class="chip ${t === activeFilter ? 'active' : ''}" data-type="${t}">${t}${t !== 'All' ? 's' : ''}</button>`
+    ).join('');
+    filterChips.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeFilter = btn.dataset.type;
+        renderChips();
+        renderGrid();
+      });
+    });
+  }
+
+  function renderStatusChips() {
+    statusChips.innerHTML = statusOptions.map(s =>
+      `<button class="chip ${s === activeStatus ? 'active' : ''}" data-status="${s}">${s === 'All' ? 'Available + upcoming' : s}</button>`
+    ).join('');
+    statusChips.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeStatus = btn.dataset.status;
+        renderStatusChips();
+        renderGrid();
+      });
+    });
+  }
+
+  function matchesQuery(v, q) {
+    if (!q) return true;
+    const hay = `${v.brand} ${v.model} ${v.type} ${v.sub} ${v.year} ${v.status}`.toLowerCase();
+    return hay.includes(q.toLowerCase());
+  }
+
+  function renderGrid() {
+    const q = searchInput.value.trim();
+    const filtered = database.filter(v =>
+      (activeFilter === "All" || v.type === activeFilter) &&
+      (activeStatus === "All" || v.status === activeStatus) &&
+      matchesQuery(v, q)
+    );
+
+    resultsTitle.textContent = q ? `Results for "${q}"` : (activeFilter === "All" ? "All vehicles" : activeFilter + "s");
+    resultsCount.textContent = `${filtered.length} vehicle${filtered.length !== 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+    emptyState.style.display = 'none';
+
+    grid.innerHTML = filtered.map((v) => `
+      <div class="card" data-index="${database.indexOf(v)}">
+        ${v.status === 'Upcoming' ? '<div class="upcoming-badge">Upcoming</div>' : ''}
+        <div class="brand-row">
+          <div class="brand">${v.brand} · ${v.year}</div>
+          ${v.variants ? `<div class="variant-count">${v.variants.length} variants</div>` : ''}
+        </div>
+        <h3>${v.model}</h3>
+        <div class="mini-stats">
+          <div><div class="n">${v.range}</div><div class="l">km range</div></div>
+          <div><div class="n">${v.battery}</div><div class="l">kWh battery</div></div>
+        </div>
+        <div class="price">${v.variants ? `From ${formatPrice(Math.min(...v.variants.filter(x=>x.price).map(x=>x.price)))}` : formatPrice(v.price)}${v.status === 'Upcoming' ? ' (est.)' : ''}</div>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', () => openModal(database[card.dataset.index]));
+    });
+  }
+
+  function openModal(v) {
+    const variantsHtml = v.variants ? `
+      <div style="margin-top: 22px;">
+        <div class="d-label" style="margin-bottom: 10px;">All variants (base to top)</div>
+        <div class="variant-table">
+          ${v.variants.map(vr => `
+            <div class="variant-row">
+              <div class="variant-name">${vr.trim}</div>
+              <div class="variant-specs">
+                <span>${vr.battery} kWh</span>
+                <span>${vr.range} km</span>
+                <span>${vr.price ? formatPrice(vr.price) : 'Price varies by dealer'}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    modal.innerHTML = `
+      <div class="modal-head">
+        <div>
+          <div class="brand">${v.brand} · ${v.year}</div>
+          <h2>${v.model}</h2>
+        </div>
+        <button class="close-btn" id="closeBtn">✕</button>
+      </div>
+      <div style="margin-bottom: 22px;">
+        <span class="body-type-tag">${v.sub}</span>
+        ${v.status === 'Upcoming' ? `<span class="upcoming-tag">Upcoming — ${v.launchNote || 'launch date not yet confirmed'}</span>` : ''}
+        ${v.variants ? `<span class="body-type-tag" style="color: var(--amber); border-color: var(--amber);">${v.variants.length} variants</span>` : ''}
+      </div>
+      <div class="detail-grid">
+        <div><div class="d-label">${v.variants ? 'Range (base–top)' : 'Range'}</div><div class="d-val">${v.variants ? `${Math.min(...v.variants.map(x=>x.range))}–${Math.max(...v.variants.map(x=>x.range))} km` : v.range + ' km'}</div></div>
+        <div><div class="d-label">Battery options</div><div class="d-val">${v.variants ? [...new Set(v.variants.map(x=>x.battery))].join(' / ') + ' kWh' : v.battery + ' kWh'}</div></div>
+        <div><div class="d-label">${v.status === 'Upcoming' ? 'Expected price' : 'Ex-showroom price'}</div><div class="d-val">${v.variants ? `${formatPrice(Math.min(...v.variants.filter(x=>x.price).map(x=>x.price)))} – ${formatPrice(Math.max(...v.variants.filter(x=>x.price).map(x=>x.price)))}` : formatPrice(v.price)}</div></div>
+        <div><div class="d-label">Top speed</div><div class="d-val">${v.topSpeed} km/h</div></div>
+        <div><div class="d-label">Charge time</div><div class="d-val">${v.charge} ${v.chargeUnit}</div></div>
+        <div><div class="d-label">Est. efficiency</div><div class="d-val">${(v.battery / v.range * 100).toFixed(1)} kWh/100km</div></div>
+      </div>
+      ${variantsHtml}
+      <p style="color: var(--muted); font-size: 0.82rem; margin-top: 18px;">${v.status === 'Upcoming'
+        ? 'All figures for unreleased vehicles are estimates from public reports and can change before official launch.'
+        : 'On-road price varies by state due to registration and road tax; these are ex-showroom figures and can change with periodic price revisions.'}</p>
+    `;
+    document.getElementById('closeBtn').addEventListener('click', closeModal);
+    overlay.classList.add('open');
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+  }
+
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  searchInput.addEventListener('input', renderGrid);
+  document.getElementById('searchBtn').addEventListener('click', renderGrid);
+  document.getElementById('resetLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    searchInput.value = '';
+    activeFilter = 'All';
+    activeStatus = 'All';
+    renderChips();
+    renderStatusChips();
+    renderGrid();
+  });
+
+  renderChips();
+  renderStatusChips();
+  renderGrid();
+
+  // ================= INTRO SEQUENCE ORCHESTRATION =================
+  (function runIntro() {
+    const overlay = document.getElementById('introOverlay');
+    const carStage = document.getElementById('carStage');
+    const doorPanel = document.getElementById('doorPanel');
+    const dashGlow = document.getElementById('dashGlow');
+    const taglineText = document.getElementById('taglineText');
+    const skipBtn = document.getElementById('skipIntro');
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const timers = [];
+
+    function endIntro() {
+      timers.forEach(clearTimeout);
+      overlay.classList.add('hide');
+      setTimeout(() => { overlay.style.display = 'none'; }, 1050);
+    }
+
+    if (prefersReducedMotion) {
+      overlay.style.display = 'none';
+      return;
+    }
+
+    // Type out the tagline
+    const message = "THE FUTURE OF THE WORLD IS ELECTRIC";
+    let i = 0;
+    function typeChar() {
+      if (i <= message.length) {
+        taglineText.textContent = message.slice(0, i);
+        i++;
+        timers.push(setTimeout(typeChar, 38));
+      }
+    }
+    timers.push(setTimeout(typeChar, 250));
+
+    // Drive the car in
+    timers.push(setTimeout(() => carStage.classList.add('drive-in'), 50));
+
+    // Open the door + reveal the "infotainment" glow
+    timers.push(setTimeout(() => {
+      doorPanel.classList.add('open');
+      dashGlow.classList.add('on');
+    }, 2100));
+
+    // Zoom through the screen into the site
+    timers.push(setTimeout(() => carStage.classList.add('zoom-in'), 3400));
+
+    // Fade the whole intro away
+    timers.push(setTimeout(endIntro, 4750));
+
+    skipBtn.addEventListener('click', endIntro);
+  })();
+</script>
+
+
+</body>
+</html>
